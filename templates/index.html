@@ -1,10 +1,76 @@
-<html>
-  <head>
-    <title>Video Streaming Demonstration</title>
-  </head>
-  <body>
-    <h1>Video Streaming Demonstration</h1>
-    <img src="{{ url_for('video_feed') }}">
-    <img src="{{ url_for('video_result') }}">
-  </body>
+<!--
+Copyright 2015-2016 Carnegie Mellon University
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Face Recognition</title>
+        <link href="{{url_for('static',filename='vendor/css/bootstrap.min.css')}}" rel="stylesheet">
+        <link href="{{url_for('static',filename='vendor/css/bootstrap-toggle.min.css')}}" rel="stylesheet">
+        <link href="{{url_for('static',filename='vendor/css/bootstrap.min.css')}}" rel="stylesheet">
+        <link href="{{url_for('static',filename='css/main.css')}}" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+             <div class="header">
+                <video id="videoel" width="800" height="600"
+                           preload="auto" loop></video>
+            </div>
+            <div class="content1">
+                <h4>Server: <span id="serverStatus"></span></h4>
+                <h4>Training(Input Your Name First):
+                    <input type="checkbox" checked data-toggle="toggle"
+                           id="trainingChk">
+                </h4>
+                <h4>Name:
+                    <input type="text" id="addPersonTxt" style="width:25%">
+                </h4>
+            </div>
+            <div class="content2">
+                <h4>All Names:</h4>
+                <textarea style="resize:none" readonly id="identity"
+                          cols ="50" rows = "3"> </textarea>
+             </div>
+        </div>
+    </body>
+    <script src="{{url_for('static',filename='vendor/js/jquery.min.js')}}"></script>
+    <script src="{{url_for('static',filename='vendor/js/bootstrap.min.js')}}"></script>
+    <script src="{{url_for('static',filename='vendor/js/bootstrap-toggle.min.js')}}"></script>
+    <script src="{{url_for('static',filename='vendor/js/bootstrap-dialog.min.js')}}"></script>
+    <script src="{{url_for('static',filename='vendor/js/handlebars.min.js')}}"></script>
+    <script src="{{url_for('static',filename='vendor/js/jstat.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/facereg-demo.js')}}"></script>
+    <script type="text/javascript">
+     var defaultTok = 1, defaultNumNulls = 20;
+     var tok = defaultTok,
+         people = '', defaultPerson = -1,
+         images = [],
+         training = false;
+     var numNulls, sentTimes, receivedTimes;
+     var socket, socketName;
+     var regRet;
+
+
+     $("#trainingChk").change(trainingChkCallback);
+
+     redrawPeople();
+     // createSocket("wss://facerec.cmusatyalab.org:9000", "CMU");
+     createSocket("wss://" + window.location.hostname + ":9000", "Local");
+    </script>
 </html>
