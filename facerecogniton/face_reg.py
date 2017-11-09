@@ -127,28 +127,27 @@ def detect_people(frame):
     return frame
 
 def recog_process_frame(frame):
+#    print("11111111111112312311")
     rects, landmarks = face_detect.detect_face(frame,40);#min face size is set to 80x80
     aligns = []
     positions = []
     rets = []
-    
-    #print "222  ", int(round(time.time() * 1000))
+#    print("11111111111111")
     for (i, rect) in enumerate(rects):
         aligned_face, face_pos = aligner.align(160,frame,landmarks[i])
         aligns.append(aligned_face)
         positions.append(face_pos)
+#    print("1111111112222222211111")
     if (len(aligns) == 0):
-        return None
-    #print "333  ", int(round(time.time() * 1000))
+        return rets
     features_arr = extract_feature.get_features(aligns)
-    #print "444  ", int(round(time.time() * 1000))
     recog_data = findPeople(features_arr,positions);
-    #print "555  ", int(round(time.time() * 1000))
+#    print("111111111333333332222222211111")
     for (i,rect) in enumerate(rects):
-#         rets.append({"name":recog_data[i], "pos":rect})
-        cv2.rectangle(frame,(rect[0],rect[1]),(rect[0] + rect[2],rect[1]+rect[3]),(0,0,255),2) #draw bounding box for the face
-        cv2.putText(frame, recog_data[i],(rect[0],rect[1]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
-    return frame
+        rets.append({"name":recog_data[i], "pos":rect})
+#        cv2.rectangle(frame,(rect[0],rect[1]),(rect[0] + rect[2],rect[1]+rect[3]),(0,0,255),2) #draw bounding box for the face
+#        cv2.putText(frame, recog_data[i],(rect[0],rect[1]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
+    return rets
 
 '''
 facerec_128D.txt Data Structure:
@@ -206,6 +205,8 @@ class PersonModel:
         self.images = []
 
 def training_start_local(name):
+    if(has_name(name)):
+        return None
     return PersonModel(name)
 
 def training_proframe_local(model, picf):
@@ -243,6 +244,15 @@ def get_person_names():
     for name in feature_data_set:
         names.append(name)
     return names
+
+def has_name(name):
+    return feature_data_set.has_key(name)
+
+def delete_person_name(name):
+    if (has_name(name)):
+        del feature_data_set[name];
+        f = open('./models/facerec_128D.txt', 'w');
+        f.write(json.dumps(feature_data_set))
 
 import requests
 import threading
