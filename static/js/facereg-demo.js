@@ -21,73 +21,37 @@ window.URL = window.URL ||
 
 
 function btnStartOnclick(){
+    var name = $("#addPersonTxt").val();
+    if(document.getElementById("addPersonTxt").value=='')
+    { alert("Please input your name!"); return; }
+
     console.log("in btnStartOnclick");
+    sendMessage("TRAINSTART_REQ", name);
 }
 
 function btnFinishOnclick(){
     console.log("in btnFinishOnclick");
+    sendMessage("TRAINFINISH_REQ", "");
 }
 
 function btnDeleteOnclick(){
+    var name = $("#addPersonTxt").val();
+    if(document.getElementById("addPersonTxt").value=='')
+    { alert("Please input your name!"); return; }
+
     console.log("in btnDeleteOnclick");
+    sendMessage("DELETENAME_REQ", name);
 }
-
-
-
-function trainingChkCallback() {
-    socket.emit('my message', {data: "123123123"});
-    console.log("in trainingChkCallback");
-/*
-    training = $("#trainingChk").prop('checked');
-
-    
-
-    if (training) {
-        var newPerson = $("#addPersonTxt").val();
-
-        if(document.getElementById("addPersonTxt").value=='')
-        { alert("Please input your name!"); return; }
-
-        if (socket != null) {
-            var msg = {
-                'type': 'TRAINING_START',
-                'val': newPerson
-            };
-            socket.send(JSON.stringify(msg));
-        }
-    } else {
-        if (socket != null) {
-            var msg = {
-                'type': 'TRAINING_FINISH',
-                'val': ""
-            };
-            socket.send(JSON.stringify(msg));
-        }
-    }
-*/
-}
-
 
 function redrawPeople(peopleNames) {
    document.getElementById("identity").value=peopleNames;
 }
 
-function sendIndentityReq() {
+function sendMessage(type, msg) {
     var msg = {
-        'type': 'IDENTITY_REQ',
-        'training': training
-    };
+               'type': type,
+               'msg' : msg };
     socket.send(JSON.stringify(msg));
-}
-
-function createWebSocket() {
-    console.log("start message");
-    var socket = io.connect('http://' + document.domain + ':' + location.port + '/recognition');
-    socket.on('connect', function(msg) {
-        console.log(msg.data);
-    });
-    socket.emit('message', {data: "123123123"});
-    console.log("send message");
 }
 
 function createSocket(address) {
@@ -95,24 +59,23 @@ function createSocket(address) {
     socket.binaryType = "arraybuffer";
     socket.onopen = function() {
         console.log("On open");
-        socket.send(JSON.stringify({'type': 'CONNECTED'}));
+        socket.send(JSON.stringify({'type': 'CONNECT_REQ'}));
         $("#serverStatus").html("Connected.");
         $("#trainingStatus").html("Recognizing.");
     }
     socket.onmessage = function(e) {
-//        console.log(e);
+        console.log(e);
         j = JSON.parse(e.data)
-        if (j.type == "CONNECTED_RESP") {
-            sendIndentityReq();
-        } else if (j.type == "IDENTITY_RESP") {
-            redrawPeople(j['content']);
+        if (j.type == "CONNECT_RESP") {
+            sendMessage("LOADNAME_REQ", "");
+        } else if (j.type == "LOADNAME_RESP") {
+            redrawPeople(j['msg']);
         } else if (j.type == "TRAINSTART_RESP") {
             $("#trainingStatus").html("Training.");
-        } else if (j.type == "TRAINEND_RESP") {
-            redrawPeople(j['content']);
+        } else if (j.type == "TRAINFINISH_RESP") {
             $("#trainingStatus").html("Recognizing.");
         } else if (j.type == "ERROR_MSG") {
-            alert(j['content']);
+            alert(j['msg']);
         } else {
             console.log("Unrecognized message type: " + j.type);
         }
