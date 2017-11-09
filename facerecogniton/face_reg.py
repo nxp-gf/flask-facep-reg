@@ -20,12 +20,14 @@ import sys, time
 import json
 import numpy as np
 from PIL import Image
+import imagehash, distance
 
 FRGraph = FaceRecGraph();
 aligner = AlignCustom();
 extract_feature = FaceFeature(FRGraph)
 face_detect = MTCNNDetect(FRGraph, scale_factor=2); #scale_factor, rescales image for faster detection
 feature_data_set = None
+
 
 def main(args):
     mode = args.mode
@@ -81,7 +83,7 @@ def track_people(frame, bbox):
     # Initialize tracker with first frame and bounding box
     ok = tracker.init(frame, bbox)
  
-def recog_process_frame(frame):
+def recog_process_frame_with_tracker(frame):
     global tracker
     #print "111  ", int(round(time.time() * 1000))
     #u can certainly add a roi here but for the sake of a demo i'll just leave it as simple as this
@@ -109,7 +111,22 @@ def recog_process_frame(frame):
  
     return rects
 
-def recog_thread(frame):
+lastphash = "d55b414355664abd"
+def detect_people(frame):
+    global lastphash
+    rects, landmarks = face_detect.detect_face(frame,40);#min face size is set to 80x80
+    for (i,rect) in enumerate(rects):
+        cv2.rectangle(frame,(rect[0],rect[1]),(rect[0] + rect[2],rect[1]+rect[3]),(0,0,255),2) #draw bounding box for the face
+    for (i, rect) in enumerate(rects):
+        aligned_face, face_pos = aligner.align(160,frame,landmarks[i])
+        phash = str(imagehash.phash(Image.fromarray(aligned_face)))
+        dis = distance.hamming(lastphash, phash)
+        print phash,  dis
+        lastphash = phash
+
+    return frame
+
+def recog_process_frame(frame):
     rects, landmarks = face_detect.detect_face(frame,40);#min face size is set to 80x80
     aligns = []
     positions = []
@@ -129,7 +146,7 @@ def recog_thread(frame):
     #print "555  ", int(round(time.time() * 1000))
     for (i,rect) in enumerate(rects):
 #         rets.append({"name":recog_data[i], "pos":rect})
-#        cv2.rectangle(frame,(rect[0],rect[1]),(rect[0] + rect[2],rect[1]+rect[3]),(0,0,255),2) #draw bounding box for the face
+        cv2.rectangle(frame,(rect[0],rect[1]),(rect[0] + rect[2],rect[1]+rect[3]),(0,0,255),2) #draw bounding box for the face
         cv2.putText(frame, recog_data[i],(rect[0],rect[1]),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
     return frame
 

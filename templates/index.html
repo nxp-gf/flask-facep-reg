@@ -28,25 +28,28 @@ limitations under the License.
     </head>
     <body>
         <div class="container">
-             <div class="header">
-                <video id="videoel" width="800" height="600"
-                           preload="auto" loop></video>
+            <div class="header">
+                <img src="{{ url_for('video_feed') }}">
             </div>
             <div class="content1">
                 <h4>Server: <span id="serverStatus"></span></h4>
-                <h4>Training(Input Your Name First):
-                    <input type="checkbox" checked data-toggle="toggle"
-                           id="trainingChk">
+                <h4>Input Your Name:
+                    <input type="text" id="addPersonTxt" style="width:20%">
                 </h4>
-                <h4>Name:
-                    <input type="text" id="addPersonTxt" style="width:25%">
+                <h4>
+                    <button type="button" id="btn_start">Start Training</button>
+                    <button type="button" id="btn_finish">Finish Training</button>
+                    Status: <span id="trainingStatus"></span>
+                </h4>
+                <h4>
+                    <button type="button" id="btn_delete">Delete Person</button>
                 </h4>
             </div>
             <div class="content2">
                 <h4>All Names:</h4>
                 <textarea style="resize:none" readonly id="identity"
-                          cols ="50" rows = "3"> </textarea>
-             </div>
+                          cols ="50" rows = "4"> </textarea>
+            </div>
         </div>
     </body>
     <script src="{{url_for('static',filename='vendor/js/jquery.min.js')}}"></script>
@@ -58,19 +61,18 @@ limitations under the License.
     <script src="{{url_for('static',filename='js/facereg-demo.js')}}"></script>
     <script type="text/javascript">
      var defaultTok = 1, defaultNumNulls = 20;
-     var tok = defaultTok,
-         people = '', defaultPerson = -1,
-         images = [],
-         training = false;
-     var numNulls, sentTimes, receivedTimes;
+     var people = '', training = false;
      var socket, socketName;
      var regRet;
 
 
-     $("#trainingChk").change(trainingChkCallback);
+     $('#btn_start').click(btnStartOnclick);
+     $('#btn_finish').click(btnFinishOnclick);
+     $('#btn_delete').click(btnDeleteOnclick);
 
-     redrawPeople();
-     // createSocket("wss://facerec.cmusatyalab.org:9000", "CMU");
-     createSocket("wss://" + window.location.hostname + ":9000", "Local");
+
+     //redrawPeople();
+     //createSocket("wss://facerec.cmusatyalab.org:9000", "CMU");
+     createSocket("ws://" + window.location.hostname + ":9000");
     </script>
 </html>

@@ -57,7 +57,7 @@ img {
     right: 0;
     left: 0;
     margin: auto;
-    width: 60%;
+    width: 50%;
     height: auto;
     /* overflow-y: scroll; */
 }
@@ -67,7 +67,7 @@ img {
     bottom: 0;
     position: absolute;
     right: 0;
-    left: 50%;
+    left: 60%;
     margin: auto;
     width: 60%;
     height: auto;

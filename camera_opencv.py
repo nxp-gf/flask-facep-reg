@@ -1,24 +1,24 @@
 import cv2
 from base_camera import BaseCamera
-import facerecogniton.face_reg as face_reg
+#import facerecogniton.face_reg as face_reg
 import threading, Queue
 
 
-face_reg.recog_engine_init(serverip='120.27.21.223')
-peoples = face_reg.get_person_names()
-print(peoples)
+#face_reg.recog_engine_init(serverip='120.27.21.223')
+#peoples = face_reg.get_person_names()
+#print(peoples)
 
-img_queue = Queue.Queue(maxsize = 1)
-ret_queue = Queue.Queue(maxsize = 1)
-def recogThread():
-    while (1):
-        frame = img_queue.get()
-        ret = face_reg.recog_thread(frame)
-        if (ret is not None):
-            ret_queue.put(ret)
+#img_queue = Queue.Queue(maxsize = 1)
+#ret_queue = Queue.Queue(maxsize = 1)
+#def recogThread():
+#    while (1):
+#        frame = img_queue.get()
+#        ret = face_reg.recog_thread(frame)
+#        if (ret is not None):
+#            ret_queue.put(ret)
 
-p = threading.Thread(target=recogThread, args=())
-p.start()
+#p = threading.Thread(target=recogThread, args=())
+#p.start()
 
 def get_result():
     img = ret_queue.get()
@@ -40,7 +40,7 @@ class Camera(BaseCamera):
         while True:
             # read current frame
             _, img = camera.read()
-            rets = face_reg.recog_process_frame(img)
+            #rets = face_reg.detect_people(img)
             #if (img_queue.full()):
             #    img_queue.get_nowait()
             #img_queue.put(img)

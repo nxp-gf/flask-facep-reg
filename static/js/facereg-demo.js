@@ -19,10 +19,28 @@ window.URL = window.URL ||
     window.msURL ||
     window.mozURL;
 
+
+function btnStartOnclick(){
+    console.log("in btnStartOnclick");
+}
+
+function btnFinishOnclick(){
+    console.log("in btnFinishOnclick");
+}
+
+function btnDeleteOnclick(){
+    console.log("in btnDeleteOnclick");
+}
+
+
+
 function trainingChkCallback() {
+    socket.emit('my message', {data: "123123123"});
     console.log("in trainingChkCallback");
+/*
     training = $("#trainingChk").prop('checked');
 
+    
 
     if (training) {
         var newPerson = $("#addPersonTxt").val();
@@ -46,11 +64,12 @@ function trainingChkCallback() {
             socket.send(JSON.stringify(msg));
         }
     }
+*/
 }
 
 
-function redrawPeople() {
-   document.getElementById("identity").value=people;
+function redrawPeople(peopleNames) {
+   document.getElementById("identity").value=peopleNames;
 }
 
 function sendIndentityReq() {
@@ -61,39 +80,39 @@ function sendIndentityReq() {
     socket.send(JSON.stringify(msg));
 }
 
-function createSocket(address, name) {
+function createWebSocket() {
+    console.log("start message");
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/recognition');
+    socket.on('connect', function(msg) {
+        console.log(msg.data);
+    });
+    socket.emit('message', {data: "123123123"});
+    console.log("send message");
+}
+
+function createSocket(address) {
     socket = new WebSocket(address);
-    socketName = name;
     socket.binaryType = "arraybuffer";
     socket.onopen = function() {
-        $("#serverStatus").html("Connected to " + name);
-        sentTimes = [];
-        receivedTimes = [];
-        tok = defaultTok;
-        numNulls = 0
-
-        socket.send(JSON.stringify({'type': 'NULL'}));
-        sentTimes.push(new Date());
+        console.log("On open");
+        socket.send(JSON.stringify({'type': 'CONNECTED'}));
+        $("#serverStatus").html("Connected.");
+        $("#trainingStatus").html("Recognizing.");
     }
     socket.onmessage = function(e) {
 //        console.log(e);
         j = JSON.parse(e.data)
-        if (j.type == "NULL") {
-            receivedTimes.push(new Date());
-            numNulls++;
-            if (numNulls == defaultNumNulls) {
-                sendIndentityReq();
-            } else {
-                socket.send(JSON.stringify({'type': 'NULL'}));
-                sentTimes.push(new Date());
-            }
-        } else if (j.type == "PROCESSED") {
-            tok++;
+        if (j.type == "CONNECTED_RESP") {
+            sendIndentityReq();
         } else if (j.type == "IDENTITY_RESP") {
-            people = j['content'];
-            redrawPeople();
-        } else if (j.type == "ANNOTATED") {
-        } else if (j.type == "TSNE_DATA") {
+            redrawPeople(j['content']);
+        } else if (j.type == "TRAINSTART_RESP") {
+            $("#trainingStatus").html("Training.");
+        } else if (j.type == "TRAINEND_RESP") {
+            redrawPeople(j['content']);
+            $("#trainingStatus").html("Recognizing.");
+        } else if (j.type == "ERROR_MSG") {
+            alert(j['content']);
         } else {
             console.log("Unrecognized message type: " + j.type);
         }
