@@ -30,7 +30,6 @@ class Camera(BaseCamera):
             
             # read current frame
             _, img = camera.read()
-            #rets = face_reg.detect_people(img)
             for ret in Camera.reg_ret:
                 #draw bounding box for the face
                 rect = ret['pos']

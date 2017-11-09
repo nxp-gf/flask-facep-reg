@@ -73,9 +73,11 @@ function createSocket(address) {
         } else if (j.type == "TRAINSTART_RESP") {
             $("#trainingStatus").html("Training.");
         } else if (j.type == "TRAINFINISH_RESP") {
+            redrawPeople(j['msg']);
             $("#trainingStatus").html("Recognizing.");
         } else if (j.type == "ERROR_MSG") {
             alert(j['msg']);
+        } else if (j.type == "TRAINPROCESS") {
         } else {
             console.log("Unrecognized message type: " + j.type);
         }

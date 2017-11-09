@@ -21,6 +21,8 @@ import json
 import numpy as np
 from PIL import Image
 import imagehash, distance
+import StringIO
+
 
 FRGraph = FaceRecGraph();
 aligner = AlignCustom();
@@ -209,9 +211,7 @@ def training_start_local(name):
         return None
     return PersonModel(name)
 
-def training_proframe_local(model, picf):
-    pili = Image.open(picf)
-    frame = np.array(pili)
+def training_proframe_local(model, frame):
     rects, landmarks = face_detect.detect_face(frame, 80);  # min face size is set to 80x80
     for (i, rect) in enumerate(rects):
         aligned_frame, pos = aligner.align(160,frame,landmarks[i]);
@@ -288,7 +288,12 @@ def training_start_remote(name):
     r = requests.put(url, params=args, headers=headers)
     return PersonModel(name)
 
-def training_proframe_remote(model, picf):
+def training_proframe_remote(model, frame):
+    picf = StringIO.StringIO()
+    pi = Image.fromarray(frame)
+    pi.save(picf, format = "jpeg")
+    picf.seek(0)
+
     model.images.append(picf)
 #    args = {'id': model.name, 'end':'false'}
 #    files = {'file': ('pic.png', picf, 'image/png')}
