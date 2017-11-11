@@ -29,7 +29,7 @@ limitations under the License.
     <body>
         <div class="container">
             <div class="header">
-                <img src="{{ url_for('video_feed') }}">
+                <img src="{{ url_for('video_feed') }}" height=720 width=1280>
             </div>
             <div class="content1">
                 <h4>Server: <span id="serverStatus"></span></h4>
@@ -71,8 +71,6 @@ limitations under the License.
      $('#btn_delete').click(btnDeleteOnclick);
 
 
-     //redrawPeople();
-     //createSocket("wss://facerec.cmusatyalab.org:9000", "CMU");
-     createSocket("ws://" + window.location.hostname + ":9000");
+     createSocket("ws://" + window.location.hostname + ":9001");
     </script>
 </html>

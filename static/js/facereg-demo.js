@@ -110,7 +110,7 @@ function changeServerCallback() {
     switch ($(this).html()) {
     case "Local":
         socket.close();
-        createSocket("wss:" + window.location.hostname + ":9000", "Local");
+        createSocket("wss:" + window.location.hostname + ":9001", "Local");
         break;
     case "CMU":
         socket.close();

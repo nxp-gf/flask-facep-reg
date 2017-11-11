@@ -54,8 +54,8 @@ def recogProcess():
                         face_reg.training_finish(recogProcess.new_person, onTrainFinish)
                         sendQueueMessage("TRAINPROCESS")
 
-            except Exception,e:
-               print e
+            except Exception as e:
+               print(e)
     print("recogProcess start")
     t1 = threading.Thread(target=msgProcessThread)
     t1.start()
@@ -68,10 +68,11 @@ def recogProcess():
             if recogProcess.training:
                 face_reg.training_proframe(recogProcess.new_person, inFrame)
             else:
-                rets = face_reg.recog_process_frame(inFrame)
+                #rets = face_reg.recog_process_frame(inFrame)
+                rets = face_reg.detect_people(inFrame)
                 retsult_queue.put(rets)
-        except Exception,e:  
-            print e  
+        except Exception as e:  
+            print(e)
 
 class FaceServerProtocol(WebSocketServerProtocol):
     def __init__(self):
@@ -87,15 +88,15 @@ class FaceServerProtocol(WebSocketServerProtocol):
             if (ret["type"] == "TRAINFINISH_RESP"):
                 self.peoples = ret['msg']
             self.sendSocketMessage(ret["type"], ret["msg"])
-        except Exception,e:
-           print e
+        except Exception as e:
+           print(e)
         reactor.callLater(1,self.timerCallback)
 
     def onOpen(self):
-        print "open"
+        print("open")
 
     def onClose(self, wasClean, code, reason):
-        print "close"
+        print("close")
 
     def onMessage(self, payload, binary):
         raw = payload.decode('utf8')
@@ -141,11 +142,11 @@ class FaceServerProtocol(WebSocketServerProtocol):
         toRecogQueue.put(msg)
         ret = fromRecogQueue.get()
         print("get msg from recog", json.dumps(ret))
-        return ret
+        return(ret)
 
 
 def socketServerProcess():
-    factory = WebSocketServerFactory("ws://localhost:9000")
+    factory = WebSocketServerFactory("ws://localhost:9001")
     factory.protocol = FaceServerProtocol
     listenWS(factory)
     reactor.run()
@@ -153,7 +154,7 @@ def socketServerProcess():
 def startWebSocketServer():
     p1 = Process(target = recogProcess)
     p1.start()
-    time.sleep(100)
+    #time.sleep(100)
     print("Sleep out")
     p2 = Process(target = socketServerProcess)
     p2.start()

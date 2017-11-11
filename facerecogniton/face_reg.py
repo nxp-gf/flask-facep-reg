@@ -20,8 +20,35 @@ import sys, time
 import json
 import numpy as np
 from PIL import Image
-import imagehash, distance
 import StringIO
+
+from Detection.MtcnnDetector import MtcnnDetector
+from Detection.detector import Detector
+from Detection.fcn_detector import FcnDetector
+
+from train_models.mtcnn_model import P_Net, R_Net, O_Net
+
+#ADD START
+test_mode = "onet"
+thresh = [0.9, 0.6, 0.7]
+min_face_size = 24
+stride = 2
+slide_window = False
+shuffle = False
+#vis = True
+detectors = [None, None, None]
+prefix = ['./MTCNN_model/PNet_landmark/PNet', './MTCNN_model/RNet_landmark/RNet', './MTCNN_model/ONet_landmark/ONet']
+epoch = [18, 14, 16]
+model_path = ['%s-%s' % (x, y) for x, y in zip(prefix, epoch)]
+#PNet = FcnDetector(P_Net, model_path[0])
+#detectors[0] = PNet
+#RNet = Detector(R_Net, 24, 1, model_path[1])
+#detectors[1] = RNet
+ONet = Detector(O_Net, 48, 1, model_path[2])
+detectors[2] = ONet
+mtcnn_detector = MtcnnDetector(detectors=detectors, min_face_size=min_face_size,
+                               stride=stride, threshold=thresh, slide_window=slide_window)
+#ADD END
 
 
 FRGraph = FaceRecGraph();
@@ -112,21 +139,23 @@ def recog_process_frame_with_tracker(frame):
                 cv2.putText(frame, "Tracking failure detected", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
  
     return rects
-
-lastphash = "d55b414355664abd"
+face_cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml")
 def detect_people(frame):
-    global lastphash
-    rects, landmarks = face_detect.detect_face(frame,40);#min face size is set to 80x80
-    for (i,rect) in enumerate(rects):
-        cv2.rectangle(frame,(rect[0],rect[1]),(rect[0] + rect[2],rect[1]+rect[3]),(0,0,255),2) #draw bounding box for the face
-    for (i, rect) in enumerate(rects):
-        aligned_face, face_pos = aligner.align(160,frame,landmarks[i])
-        phash = str(imagehash.phash(Image.fromarray(aligned_face)))
-        dis = distance.hamming(lastphash, phash)
-        print phash,  dis
-        lastphash = phash
+    #gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    #rects = face_cascade.detectMultiScale(gray,1.3,5)
 
-    return frame
+    rets = []
+    #rects, landmarks = face_detect.detect_face(frame,80);#min face size is set to 80x80
+   # for (i,rect) in enumerate(rects):
+    #    rets.append({"name":"  ", "pos":rect})
+    boxes_c,landmarks = mtcnn_detector.detect(frame)
+    for i in range(boxes_c.shape[0]):
+        bbox = boxes_c[i, :4]
+        score = boxes_c[i, 4]
+        corpbbox = [int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])]
+        rets.append({"name":str(score), "pos":corpbbox})
+
+    return rets
 
 def recog_process_frame(frame):
 #    print("11111111111112312311")

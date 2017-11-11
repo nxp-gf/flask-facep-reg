@@ -21,6 +21,9 @@ class Camera(BaseCamera):
         global frame_queue,regret_queue
 
         camera = cv2.VideoCapture(Camera.video_source)
+        camera.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+
         if not camera.isOpened():
             raise RuntimeError('Could not start camera.')
 
@@ -39,9 +42,10 @@ class Camera(BaseCamera):
                 if (frame_queue.full()):
                     frame_queue.get_nowait()
                 frame_queue.put(img)
-            except Exception,e:
+            except Exception as e:
                 pass
 
 
+
             # encode as a jpeg image and return it
-            yield cv2.imencode('.jpg', img)[1].tobytes()
+            yield cv2.imencode('.jpeg', img)[1].tobytes()
