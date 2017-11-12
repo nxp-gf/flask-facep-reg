@@ -48,4 +48,4 @@ class Camera(BaseCamera):
 
 
             # encode as a jpeg image and return it
-            yield cv2.imencode('.jpeg', img)[1].tobytes()
+            yield cv2.imencode('.png', img)[1].tobytes()
