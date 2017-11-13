@@ -20,7 +20,6 @@ import sys, time
 import json
 import numpy as np
 from PIL import Image
-import imagehash, distance
 import StringIO
 
 
@@ -89,7 +88,7 @@ def recog_process_frame_with_tracker(frame):
     global tracker
     #print "111  ", int(round(time.time() * 1000))
     #u can certainly add a roi here but for the sake of a demo i'll just leave it as simple as this
-    rects, landmarks = face_detect.detect_face(frame,40);#min face size is set to 80x80
+    rects, landmarks = face_detect.detect_face(frame,10);#min face size is set to 80x80
     for (i,rect) in enumerate(rects):
         cv2.rectangle(frame,(rect[0],rect[1]),(rect[0] + rect[2],rect[1]+rect[3]),(0,0,255),2)
         if (tracker is None):
@@ -115,11 +114,11 @@ def recog_process_frame_with_tracker(frame):
 
 def detect_people(frame):
     rets = []
-    rects, landmarks = face_detect.detect_face(frame,40);#min face size is set to 80x80
+    rects, landmarks = face_detect.detect_face(frame,80);#min face size is set to 80x80
     for (i,rect) in enumerate(rects):
         rets.append({"name":"  ", "pos":rect})
 
-    return frame
+    return rets
 
 def recog_process_frame(frame):
 #    print("11111111111112312311")

@@ -152,10 +152,10 @@ def socketServerProcess():
     reactor.run()
 
 def startWebSocketServer():
-    p1 = Process(target = recogProcess)
-    p1.start()
+    #p1 = Process(target = recogProcess)
+    #p1.start()
     #time.sleep(100)
-    print("Sleep out")
+    #print("Sleep out")
     p2 = Process(target = socketServerProcess)
     p2.start()
 
